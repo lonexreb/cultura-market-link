@@ -5,6 +5,7 @@ import { useBrickWorkflow } from '../contexts/BrickWorkflowContext';
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import * as BufferGeometryUtils from 'three/addons/utils/BufferGeometryUtils.js';
+import loadingGif from '../assets/loading.gif';
 
 interface BrickWorkspaceProps {
   className?: string;
@@ -26,26 +27,26 @@ function CSSToHex(css: string): number {
   return parseInt(`0x${css.substring(1)}`, 16);
 }
 
-// Convert Tailwind color names to hex values
+// Convert Tailwind color names to hex values (brightened for dark background contrast)
 function tailwindColorToHex(colorName: string): string {
   const colorMap: Record<string, string> = {
-    'cyan': '#06b6d4',
-    'emerald': '#10b981', 
-    'blue': '#3b82f6',
-    'purple': '#8b5cf6',
-    'orange': '#f97316',
-    'yellow': '#eab308',
-    'red': '#ef4444',
-    'slate': '#64748b',
-    'indigo': '#6366f1',
-    'teal': '#14b8a6',
-    'pink': '#ec4899',
-    'violet': '#8b5cf6',
-    'lime': '#84cc16',
-    'gray': '#6b7280'
+    'cyan': '#22d3ee',      // Brighter cyan
+    'emerald': '#34d399',   // Brighter emerald
+    'blue': '#60a5fa',      // Brighter blue
+    'purple': '#a78bfa',    // Brighter purple
+    'orange': '#fb923c',    // Brighter orange
+    'yellow': '#fbbf24',    // Brighter yellow
+    'red': '#f87171',       // Brighter red
+    'slate': '#94a3b8',     // Brighter slate
+    'indigo': '#818cf8',    // Brighter indigo
+    'teal': '#2dd4bf',      // Brighter teal
+    'pink': '#f472b6',      // Brighter pink
+    'violet': '#a78bfa',    // Brighter violet
+    'lime': '#a3e635',      // Brighter lime
+    'gray': '#9ca3af'       // Brighter gray
   };
   
-  return colorMap[colorName] || '#ef4444'; // Default to red if color not found
+  return colorMap[colorName] || '#f87171'; // Default to bright red if color not found
 }
 
 // Rollover brick class with studs for preview
@@ -57,8 +58,8 @@ class RollOverBrick extends THREE.Mesh {
   constructor(color: string, dimensions: { x: number; z: number }) {
     const { width, height, depth } = getMeasurementsFromDimensions(dimensions);
     const mat = new THREE.MeshBasicMaterial({ 
-      color: 0x08173D, 
-      opacity: 0.5, 
+      color: 0x00FFFF, // Bright cyan for high contrast against dark background
+      opacity: 0.8, // More opaque for better visibility
       transparent: true 
     });
     
@@ -74,8 +75,8 @@ class RollOverBrick extends THREE.Mesh {
     const { width, height, depth } = getMeasurementsFromDimensions(dimensions);
     this.geometry.dispose();
     const mat = new THREE.MeshBasicMaterial({ 
-      color: 0x08173D, 
-      opacity: 0.5, 
+      color: 0x00FFFF, // Bright cyan for high contrast against dark background
+      opacity: 0.8, // More opaque for better visibility
       transparent: true 
     });
     const [newGeometry] = createBrickMesh(mat, width, height, depth, dimensions);
@@ -177,8 +178,9 @@ class SimpleBrick extends THREE.Mesh {
     
     const cubeMaterial = new THREE.MeshStandardMaterial({
       color: CSSToHex(color),
-      metalness: 0.4,
-      roughness: 0.5,
+      metalness: 0.2,     // Less metallic for brighter appearance
+      roughness: 0.3,     // Less rough for more reflection
+      emissive: 0x111111, // Slight emissive glow for better visibility
     });
     
     const { height, width, depth } = getMeasurementsFromDimensions(dimensions);
@@ -250,6 +252,7 @@ export function BrickWorkspace({ className = '' }: BrickWorkspaceProps) {
   const [drag, setDrag] = useState(false);
   const [brickHover, setBrickHover] = useState(false);
   const [showBrickHint, setShowBrickHint] = useState(true);
+  const [spatialConnectionNotification, setSpatialConnectionNotification] = useState<string | null>(null);
   
   // Workflow context
   const { 
@@ -258,8 +261,27 @@ export function BrickWorkspace({ className = '' }: BrickWorkspaceProps) {
     removeBrick, 
     updateBrick, 
     syncWithNodes, 
-    isLoading: isSyncing 
+    detectSpatialConnections,
+    isLoading: isSyncing,
+    isAutoSyncing
   } = useBrickWorkflow();
+  
+  // Debug sync function
+  const handleSyncClick = async () => {
+    console.log('🚀 Sync button clicked!');
+    console.log('📊 Current workspace state:', {
+      bricks: workspaceState.bricks.length,
+      nodeConnections: workspaceState.nodeConnections.length,
+      isSyncing
+    });
+    
+    if (workspaceState.bricks.length === 0) {
+      alert('❗ No bricks to sync! Place some bricks first by clicking on the 3D workspace.');
+      return;
+    }
+    
+    await syncWithNodes();
+  };
   
   // Three.js refs
   const mountRef = useRef<HTMLDivElement>(null);
@@ -315,20 +337,25 @@ export function BrickWorkspace({ className = '' }: BrickWorkspaceProps) {
     controls.maxDistance = 2000;
     controlsRef.current = controls;
 
-    // Lighting setup
-    const ambientLight = new THREE.AmbientLight(0x606060, 0.6);
+    // Enhanced lighting setup for better brick visibility
+    const ambientLight = new THREE.AmbientLight(0x404040, 0.8); // Brighter ambient light
     scene.add(ambientLight);
 
-    const directionalLight = new THREE.DirectionalLight(0xffffff, 2);
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 2.5); // Brighter directional light
     directionalLight.position.set(1000, 1500, 500);
     directionalLight.castShadow = true;
     directionalLight.shadow.mapSize.width = 2048;
     directionalLight.shadow.mapSize.height = 2048;
     scene.add(directionalLight);
 
-    const pointLight = new THREE.PointLight(0xfff0f0, 0.6, 100, 0);
+    const pointLight = new THREE.PointLight(0xffffcc, 0.8, 1000, 0); // Brighter, warmer point light
     pointLight.position.set(-1000, 1500, 500);
     scene.add(pointLight);
+    
+    // Additional fill light for better contrast
+    const fillLight = new THREE.PointLight(0xccccff, 0.4, 800, 0);
+    fillLight.position.set(500, 800, -500);
+    scene.add(fillLight);
 
     // Ground plane
     const planeGeometry = new THREE.PlaneGeometry(3000, 3000);
@@ -431,6 +458,25 @@ export function BrickWorkspace({ className = '' }: BrickWorkspaceProps) {
     sceneRef.current.add(rollOverBrick);
     rollOverBrickRef.current = rollOverBrick;
   }, [selectedBrick, selectedColor]);
+
+  // Listen for spatial connection notifications
+  useEffect(() => {
+    const handleSpatialConnectionNotification = (event: CustomEvent) => {
+      const { message } = event.detail;
+      setSpatialConnectionNotification(message);
+      
+      // Auto-hide notification after 3 seconds
+      setTimeout(() => {
+        setSpatialConnectionNotification(null);
+      }, 3000);
+    };
+
+    window.addEventListener('showSpatialConnectionNotification', handleSpatialConnectionNotification as EventListener);
+
+    return () => {
+      window.removeEventListener('showSpatialConnectionNotification', handleSpatialConnectionNotification as EventListener);
+    };
+  }, []);
 
   // Mouse and keyboard interaction handlers
   const onMouseMove = (event: MouseEvent) => {
@@ -681,6 +727,12 @@ export function BrickWorkspace({ className = '' }: BrickWorkspaceProps) {
         setShowBrickHint(false);
       }
 
+      // Trigger spatial connection detection after a short delay to allow state updates
+      setTimeout(() => {
+        console.log('🔍 Detecting spatial connections after brick placement...');
+        detectSpatialConnections();
+      }, 100);
+
       console.log('✅ Brick placed successfully:', selectedBrick.name, 'at position:', brick.position);
     } catch (error) {
       console.error('❌ Error creating brick:', error);
@@ -843,7 +895,7 @@ export function BrickWorkspace({ className = '' }: BrickWorkspaceProps) {
           </label>
           <div className="h-4 w-px bg-slate-600" />
           <button
-            onClick={syncWithNodes}
+            onClick={handleSyncClick}
             disabled={isSyncing}
             className={`px-4 py-2 text-sm font-medium rounded-md transition-all duration-200 ${
               isSyncing 
@@ -853,7 +905,7 @@ export function BrickWorkspace({ className = '' }: BrickWorkspaceProps) {
           >
             {isSyncing ? (
               <div className="flex items-center gap-2">
-                <div className="w-4 h-4 border-2 border-blue-200 border-t-transparent rounded-full animate-spin"></div>
+                <img src={loadingGif} alt="Loading..." className="w-4 h-4" />
                 Syncing...
               </div>
             ) : (
@@ -925,6 +977,169 @@ export function BrickWorkspace({ className = '' }: BrickWorkspaceProps) {
         </div>
       )}
 
+      {/* 🔄 Subtle Auto-Sync Indicator - Corner */}
+      {isAutoSyncing && (
+        <div className="fixed top-4 right-4 z-40 flex items-center gap-2 bg-slate-800/90 backdrop-blur-sm border border-slate-600/50 rounded-xl px-3 py-2 shadow-lg">
+          <img src={loadingGif} alt="Auto-syncing..." className="w-4 h-4" />
+          <span className="text-xs text-slate-400">Auto-syncing...</span>
+        </div>
+      )}
+
+      {/* 🎬 GIF-FOCUSED LOADING TAB - Manual Sync Only */}
+      {isSyncing && (
+        <div 
+          className="fixed inset-0 z-50 flex items-center justify-center transition-all duration-700 ease-out"
+          style={{
+            background: 'rgba(0, 0, 0, 0.3)', // Much lighter background - just blur
+            backdropFilter: 'blur(12px)',
+            animation: 'fadeInBlur 0.8s ease-out forwards'
+          }}
+        >
+          {/* Compact Loading Tab - Deploy Tab Size */}
+          <div 
+            className="relative transform transition-all duration-1000 ease-out max-w-sm"
+            style={{
+              animation: 'popInScale 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) 0.3s both'
+            }}
+          >
+            {/* Subtle Gradient Aura */}
+            <div 
+              className="absolute inset-0 rounded-3xl blur-2xl opacity-60 transition-all duration-2000"
+              style={{
+                background: 'linear-gradient(45deg, #06b6d4, #8b5cf6, #ec4899, #06b6d4)',
+                backgroundSize: '400% 400%',
+                animation: 'gradientShift 3s ease-in-out infinite, pulseGlow 2s ease-in-out infinite'
+              }}
+            ></div>
+            
+            {/* Compact Loading Card */}
+            <div 
+              className="relative bg-slate-900/90 backdrop-blur-xl border border-slate-500/40 rounded-3xl p-8 text-center shadow-xl transition-all duration-500"
+              style={{
+                boxShadow: '0 20px 40px -12px rgba(0, 0, 0, 0.5), 0 0 60px rgba(59, 130, 246, 0.2)'
+              }}
+            >
+              {/* 🌟 HERO LOADING GIF - THE ABSOLUTE STAR */}
+              <div 
+                className="mb-6 relative group"
+                style={{
+                  animation: 'floatGif 3s ease-in-out infinite'
+                }}
+              >
+                {/* Glowing Ring Around GIF */}
+                <div 
+                  className="absolute inset-0 rounded-full blur-lg opacity-70 transition-all duration-1000"
+                  style={{
+                    background: 'conic-gradient(from 0deg, #06b6d4, #8b5cf6, #ec4899, #06b6d4)',
+                    animation: 'rotateRing 4s linear infinite, pulseRing 2s ease-in-out infinite',
+                    padding: '6px'
+                  }}
+                ></div>
+                
+                {/* The MAGNIFICENT Loading GIF - Main Focus */}
+                <img 
+                  src={loadingGif} 
+                  alt="Loading..." 
+                  className="relative w-32 h-32 mx-auto rounded-2xl shadow-xl border-3 border-white/15 transition-all duration-300 group-hover:scale-105"
+                  style={{
+                    filter: 'brightness(1.2) contrast(1.2)',
+                    animation: 'gifPulse 2s ease-in-out infinite'
+                  }}
+                />
+                
+                {/* Subtle Sparkle Effects */}
+                {[...Array(6)].map((_, i) => (
+                  <div
+                    key={i}
+                    className="absolute w-2 h-2 bg-white rounded-full opacity-70"
+                    style={{
+                      left: `${50 + 40 * Math.cos((i * Math.PI * 2) / 6)}%`,
+                      top: `${50 + 40 * Math.sin((i * Math.PI * 2) / 6)}%`,
+                      animation: `sparkle 2s ease-in-out infinite ${i * 0.3}s`,
+                      transform: 'translate(-50%, -50%)'
+                    }}
+                  />
+                ))}
+              </div>
+              
+              {/* Compact Title - Supporting the GIF */}
+              <h2 
+                className="text-2xl font-bold mb-3 transition-all duration-1000"
+                style={{
+                  background: 'linear-gradient(45deg, #22d3ee, #8b5cf6, #ec4899)',
+                  backgroundSize: '200% 200%',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                  animation: 'gradientText 3s ease-in-out infinite, slideInFromTop 1s ease-out 0.5s both'
+                }}
+              >
+                Syncing Magic
+              </h2>
+              
+              {/* Simple Subtitle */}
+              <p 
+                className="text-sm text-slate-400 mb-6 transition-all duration-1000"
+                style={{
+                  animation: 'slideInFromBottom 1s ease-out 0.7s both'
+                }}
+              >
+                Connecting bricks to AI workflows...
+              </p>
+              
+              {/* Compact Progress Bar */}
+              <div 
+                className="mb-4"
+                style={{
+                  animation: 'slideInFromLeft 1s ease-out 0.9s both'
+                }}
+              >
+                <div className="w-48 h-2 bg-slate-700/40 rounded-full overflow-hidden mx-auto">
+                  <div 
+                    className="h-full rounded-full transition-all duration-1000"
+                    style={{
+                      background: 'linear-gradient(90deg, #22d3ee, #8b5cf6, #ec4899)',
+                      width: '100%',
+                      animation: 'waveProgress 3s ease-in-out infinite'
+                    }}
+                  ></div>
+                </div>
+              </div>
+              
+              {/* Simple Stats Row */}
+              <div 
+                className="flex items-center justify-center gap-6 text-xs text-slate-500"
+                style={{
+                  animation: 'slideInFromRight 1s ease-out 1.1s both'
+                }}
+              >
+                <div className="flex items-center gap-1">
+                  <div 
+                    className="w-2 h-2 rounded-full"
+                    style={{
+                      backgroundColor: '#22d3ee',
+                      animation: 'breathe 2s ease-in-out infinite',
+                      boxShadow: '0 0 10px #22d3ee50'
+                    }}
+                  ></div>
+                  <span>{workspaceState.bricks.length} bricks</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <div 
+                    className="w-2 h-2 rounded-full"
+                    style={{
+                      backgroundColor: '#8b5cf6',
+                      animation: 'breathe 2s ease-in-out infinite 0.5s',
+                      boxShadow: '0 0 10px #8b5cf650'
+                    }}
+                  ></div>
+                  <span>{workspaceState.nodeConnections.length} nodes</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Color Palette */}
       <div className="absolute bottom-4 right-4 z-20 bg-slate-800 rounded-lg p-3 border border-slate-600">
         <div className="text-xs text-slate-400 mb-2">Colors</div>
@@ -952,6 +1167,13 @@ export function BrickWorkspace({ className = '' }: BrickWorkspaceProps) {
         selectedBrick={selectedBrick}
         onSelectBrick={handleBrickSelection}
       />
+
+      {/* Spatial Connection Notification */}
+      {spatialConnectionNotification && (
+        <div className="absolute top-20 left-1/2 transform -translate-x-1/2 z-30 bg-green-600 text-white px-6 py-3 rounded-lg shadow-lg animate-pulse">
+          {spatialConnectionNotification}
+        </div>
+      )}
 
       {/* 3D Scene */}
       <div 
@@ -989,15 +1211,20 @@ export function BrickWorkspace({ className = '' }: BrickWorkspaceProps) {
               )}
               {isSyncing && (
                 <span className="text-blue-400 flex items-center gap-1">
-                  <div className="w-3 h-3 border border-blue-400 border-t-transparent rounded-full animate-spin"></div>
+                  <img src={loadingGif} alt="Loading..." className="w-3 h-3" />
                   Syncing...
+                </span>
+              )}
+              {workspaceState.bricks.length >= 2 && (
+                <span className="text-green-400 flex items-center gap-1">
+                  🔗 Spatial Connections: Active
                 </span>
               )}
             </div>
             <div className="text-xs text-slate-500">
               {isDDown && mode === 'build' && '🗑️ Delete mode - Release D key'}
               {isRDown && mode === 'build' && '🔄 Rotating'}
-              {!isDDown && !isRDown && mode === 'build' && selectedBrick && 'Move mouse • Click to place • D=delete • R=rotate'}
+              {!isDDown && !isRDown && mode === 'build' && selectedBrick && 'Move mouse • Click to place • D=delete • R=rotate • Place bricks next to each other to auto-connect'}
               {!isDDown && !isRDown && mode === 'build' && !selectedBrick && '← Open brick panel to select different AI bricks'}
               {mode === 'delete' && 'Click bricks to delete'}
               {mode === 'paint' && 'Click bricks to paint'}

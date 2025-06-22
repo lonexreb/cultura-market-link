@@ -152,12 +152,33 @@ const Index = () => {
       setNodeIdCounter((prev) => prev + 1);
     };
 
+    const handleCreateEdgesFromBricks = (event: CustomEvent) => {
+      const { edges } = event.detail;
+      
+      console.log('🔗 Creating spatial edges from adjacent bricks:', edges.length);
+      
+      setEdges((currentEdges) => {
+        // Filter out existing spatial edges to prevent duplicates
+        const nonSpatialEdges = currentEdges.filter(edge => 
+          !edge.data?.createdFromBricks
+        );
+        
+        // Add new spatial edges
+        const updatedEdges = [...nonSpatialEdges, ...edges];
+        console.log('🔗 Total edges after spatial connection:', updatedEdges.length);
+        
+        return updatedEdges;
+      });
+    };
+
     window.addEventListener('createNodeFromBrick', handleCreateNodeFromBrick as EventListener);
+    window.addEventListener('createEdgesFromBricks', handleCreateEdgesFromBricks as EventListener);
 
     return () => {
       window.removeEventListener('createNodeFromBrick', handleCreateNodeFromBrick as EventListener);
+      window.removeEventListener('createEdgesFromBricks', handleCreateEdgesFromBricks as EventListener);
     };
-  }, [setNodes, setNodeIdCounter]);
+  }, [setNodes, setNodeIdCounter, setEdges]);
 
   // Sync existing workflow nodes to bricks on mount
   useEffect(() => {

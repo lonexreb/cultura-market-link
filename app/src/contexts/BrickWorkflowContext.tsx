@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
 import { BrickNodeSync, WorkspaceState, Brick3D, BrickType } from '../types/brick-types';
+import { findAdjacentBrickPairs, createEdgeFromAdjacentBricks } from '../lib/brick-utils';
 
 interface BrickWorkflowContextType {
   workspaceState: WorkspaceState;
@@ -9,7 +10,9 @@ interface BrickWorkflowContextType {
   syncWithNodes: () => void;
   getBricksByFunction: (functionType: string) => Brick3D[];
   createNodeFromBrick: (brick: Brick3D) => void;
+  detectSpatialConnections: () => any[];
   isLoading: boolean;
+  isAutoSyncing: boolean;
   error: string | null;
 }
 
@@ -26,6 +29,7 @@ export function BrickWorkflowProvider({ children }: BrickWorkflowProviderProps) 
     timestamp: Date.now()
   });
   const [isLoading, setIsLoading] = useState(false);
+  const [isAutoSyncing, setIsAutoSyncing] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   // Add a brick to the workspace
@@ -119,27 +123,143 @@ export function BrickWorkflowProvider({ children }: BrickWorkflowProviderProps) 
     console.log('Created node from brick:', brick.brickType.name, '→', brick.brickType.nodeEquivalent);
   }, []);
 
-  // Sync all bricks with nodes
-  const syncWithNodes = useCallback(() => {
+  // Detect adjacent bricks and create spatial connections
+  const detectSpatialConnections = useCallback(() => {
+    const adjacentPairs = findAdjacentBrickPairs(workspaceState.bricks);
+    
+    console.log(`🔗 Found ${adjacentPairs.length} adjacent brick pairs`);
+    
+    // Create edges for adjacent bricks
+    const spatialEdges = adjacentPairs.map(({ brick1, brick2 }) => {
+      console.log(`🧱➡️🧱 Creating edge: ${brick1.brickType.name} → ${brick2.brickType.name}`);
+      return createEdgeFromAdjacentBricks(brick1, brick2);
+    });
+    
+    // Dispatch event to create edges in workflow
+    if (spatialEdges.length > 0) {
+      const createEdgesEvent = new CustomEvent('createEdgesFromBricks', {
+        detail: { edges: spatialEdges }
+      });
+      window.dispatchEvent(createEdgesEvent);
+      
+      // Show notification about spatial connections
+      const notificationEvent = new CustomEvent('showSpatialConnectionNotification', {
+        detail: { 
+          message: `🔗 Auto-connected ${adjacentPairs.length} adjacent brick pair${adjacentPairs.length > 1 ? 's' : ''}!`,
+          pairs: adjacentPairs 
+        }
+      });
+      window.dispatchEvent(notificationEvent);
+    }
+    
+    return spatialEdges;
+  }, [workspaceState.bricks]);
+
+  // Manual sync with big loading animation (4+ seconds)
+  const syncWithNodes = useCallback(async () => {
     setIsLoading(true);
+    
     try {
-      workspaceState.bricks.forEach(brick => {
+      // 🎬 Buffer time: 4 seconds PLUS actual sync time for amazing loading experience!
+      const bufferTime = new Promise(resolve => setTimeout(resolve, 4000)); // 4 seconds buffer
+      
+      const syncWork = new Promise<void>((resolve) => {
+        // Actual sync work with delays between operations
+        let processed = 0;
+        const totalBricks = workspaceState.bricks.length;
+        
+        if (totalBricks === 0) {
+          console.log('🔄 No bricks to sync');
+          resolve();
+          return;
+        }
+        
+        workspaceState.bricks.forEach((brick, index) => {
+          setTimeout(() => {
         const existingConnection = workspaceState.nodeConnections.find(
           conn => conn.brickId === brick.customId
         );
         
         if (!existingConnection && brick.brickType.nodeEquivalent) {
+              console.log(`🔄 Syncing brick ${index + 1}/${totalBricks}:`, brick.brickType.name);
           createNodeFromBrick(brick);
         }
+            
+            processed++;
+            if (processed === totalBricks) {
+              // After creating nodes, detect spatial connections
+              setTimeout(() => {
+                detectSpatialConnections();
+                resolve();
+              }, 500);
+            }
+          }, index * 200); // 200ms delay between each brick sync
+        });
       });
       
+      // Wait for BOTH the buffer time AND the actual sync work (2 + actual time)
+      await Promise.all([bufferTime, syncWork]);
+      
+      console.log('✅ Sync completed successfully with spatial connections!');
       setError(null);
     } catch (err) {
+      console.error('❌ Sync failed:', err);
       setError(`Sync failed: ${err instanceof Error ? err.message : 'Unknown error'}`);
     } finally {
       setIsLoading(false);
     }
-  }, [workspaceState.bricks, workspaceState.nodeConnections, createNodeFromBrick]);
+  }, [workspaceState.bricks, workspaceState.nodeConnections, createNodeFromBrick, detectSpatialConnections]);
+
+  // Auto-sync (subtle, no big animation) 
+  const autoSyncWithNodes = useCallback(async () => {
+    setIsAutoSyncing(true);
+    
+    try {
+      // Quick auto-sync without big animation
+      const syncWork = new Promise<void>((resolve) => {
+        let processed = 0;
+        const totalBricks = workspaceState.bricks.length;
+        
+        if (totalBricks === 0) {
+          console.log('🔄 Auto-sync: No bricks to sync');
+          resolve();
+          return;
+        }
+        
+        workspaceState.bricks.forEach((brick, index) => {
+          setTimeout(() => {
+            const existingConnection = workspaceState.nodeConnections.find(
+              conn => conn.brickId === brick.customId
+            );
+            
+            if (!existingConnection && brick.brickType.nodeEquivalent) {
+              console.log(`🔄 Auto-syncing brick ${index + 1}/${totalBricks}:`, brick.brickType.name);
+              createNodeFromBrick(brick);
+            }
+            
+            processed++;
+            if (processed === totalBricks) {
+              // Auto-detect spatial connections after nodes are created
+              setTimeout(() => {
+                detectSpatialConnections();
+                resolve();
+              }, 300);
+            }
+          }, index * 100); // Faster auto-sync (100ms vs 200ms)
+        });
+      });
+      
+      await syncWork;
+      console.log('✅ Auto-sync completed quietly with spatial connections');
+      setError(null);
+    } catch (err) {
+      console.error('❌ Auto-sync failed:', err);
+      setError(`Auto-sync failed: ${err instanceof Error ? err.message : 'Unknown error'}`);
+    } finally {
+      // Add a small delay so the indicator is visible
+      setTimeout(() => setIsAutoSyncing(false), 500);
+    }
+  }, [workspaceState.bricks, workspaceState.nodeConnections, createNodeFromBrick, detectSpatialConnections]);
 
   // Get bricks by function type
   const getBricksByFunction = useCallback((functionType: string) => {
@@ -159,7 +279,7 @@ export function BrickWorkflowProvider({ children }: BrickWorkflowProviderProps) 
         functionType: 'ai-model', nodeEquivalent: 'chatbot'
       },
       'claude4': { 
-        id: '2x1', name: 'Claude Brick', 
+        id: '2x1', name: 'Claude 4 Brick', 
         dimensions: { x: 2, z: 1 }, 
         icon: '🎯', category: 'basic',
         color: { primary: 'emerald', secondary: 'green', glow: 'emerald-400/20' },
@@ -173,7 +293,7 @@ export function BrickWorkflowProvider({ children }: BrickWorkflowProviderProps) 
         functionType: 'ai-model', nodeEquivalent: 'gemini'
       },
       'groqllama': { 
-        id: '3x1', name: 'Groq Llama Brick', 
+        id: '3x1', name: 'Groq Llama-3 Brick', 
         dimensions: { x: 3, z: 1 }, 
         icon: '⚡', category: 'basic',
         color: { primary: 'purple', secondary: 'violet', glow: 'purple-400/20' },
@@ -335,16 +455,16 @@ export function BrickWorkflowProvider({ children }: BrickWorkflowProviderProps) 
     };
   }, [workspaceState.nodeConnections, updateBrick, removeBrick, createBrickFromNode]);
 
-  // Auto-sync on brick changes
+  // Auto-sync on brick changes (subtle, no big animation)
   useEffect(() => {
     const autoSyncTimer = setTimeout(() => {
       if (workspaceState.bricks.length > 0) {
-        syncWithNodes();
+        autoSyncWithNodes(); // Use subtle auto-sync instead
       }
     }, 1000); // Debounce auto-sync
 
     return () => clearTimeout(autoSyncTimer);
-  }, [workspaceState.bricks.length, syncWithNodes]);
+  }, [workspaceState.bricks.length, autoSyncWithNodes]);
 
   const value: BrickWorkflowContextType = {
     workspaceState,
@@ -354,7 +474,9 @@ export function BrickWorkflowProvider({ children }: BrickWorkflowProviderProps) 
     syncWithNodes,
     getBricksByFunction,
     createNodeFromBrick,
+    detectSpatialConnections,
     isLoading,
+    isAutoSyncing,
     error
   };
 

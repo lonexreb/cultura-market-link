@@ -1,4 +1,18 @@
-import { PlacedBrick, BrickType } from '../types/brick-types';
+import { BrickType, Brick3D } from '../types/brick-types';
+
+// PlacedBrick interface for 2D brick placement (legacy)
+interface PlacedBrick {
+  id: string;
+  x: number;
+  y: number;
+  rotation: number;
+  type: {
+    dimensions: {
+      width: number;
+      length: number;
+    };
+  };
+}
 
 // Generate unique brick ID
 export function generateBrickId(): string {
@@ -125,4 +139,107 @@ export function getBrickCenter(brick: PlacedBrick): { x: number; y: number } {
     x: brick.x + (dims.width * studSize) / 2,
     y: brick.y + (dims.height * studSize) / 2
   };
-} 
+}
+
+// ===== 3D SPATIAL ADJACENCY DETECTION =====
+
+// Check if two 3D bricks are spatially adjacent
+export function areAdjacentIn3D(brick1: Brick3D, brick2: Brick3D, tolerance: number = 30): boolean {
+  const pos1 = brick1.position;
+  const pos2 = brick2.position;
+  const dims1 = brick1.brickType.dimensions;
+  const dims2 = brick2.brickType.dimensions;
+  
+  // Base unit size in 3D space (matching the BASE constant from BrickWorkspace)
+  const BASE = 25;
+  
+  // Calculate brick bounds
+  const brick1Bounds = {
+    minX: pos1.x - (dims1.x * BASE) / 2,
+    maxX: pos1.x + (dims1.x * BASE) / 2,
+    minZ: pos1.z - (dims1.z * BASE) / 2,
+    maxZ: pos1.z + (dims1.z * BASE) / 2,
+    y: pos1.y
+  };
+  
+  const brick2Bounds = {
+    minX: pos2.x - (dims2.x * BASE) / 2,
+    maxX: pos2.x + (dims2.x * BASE) / 2,
+    minZ: pos2.z - (dims2.z * BASE) / 2,
+    maxZ: pos2.z + (dims2.z * BASE) / 2,
+    y: pos2.y
+  };
+  
+  // Check if bricks are on similar Y level (within tolerance)
+  const yDifference = Math.abs(brick1Bounds.y - brick2Bounds.y);
+  if (yDifference > tolerance) {
+    return false;
+  }
+  
+  // Check adjacency in X direction (left-right)
+  const xGapLeft = Math.abs(brick1Bounds.maxX - brick2Bounds.minX); // brick1 to the left of brick2
+  const xGapRight = Math.abs(brick2Bounds.maxX - brick1Bounds.minX); // brick2 to the left of brick1
+  const xAdjacent = (xGapLeft <= tolerance || xGapRight <= tolerance);
+  
+  // Check adjacency in Z direction (front-back) 
+  const zGapFront = Math.abs(brick1Bounds.maxZ - brick2Bounds.minZ); // brick1 in front of brick2
+  const zGapBack = Math.abs(brick2Bounds.maxZ - brick1Bounds.minZ); // brick2 in front of brick1
+  const zAdjacent = (zGapFront <= tolerance || zGapBack <= tolerance);
+  
+  // Check if there's overlap in the perpendicular dimension
+  let hasOverlap = false;
+  
+  if (xAdjacent) {
+    // If adjacent in X, check for Z overlap
+    const zOverlap = !(brick1Bounds.maxZ < brick2Bounds.minZ || brick2Bounds.maxZ < brick1Bounds.minZ);
+    hasOverlap = zOverlap;
+  } else if (zAdjacent) {
+    // If adjacent in Z, check for X overlap
+    const xOverlap = !(brick1Bounds.maxX < brick2Bounds.minX || brick2Bounds.maxX < brick1Bounds.minX);
+    hasOverlap = xOverlap;
+  }
+  
+  return (xAdjacent || zAdjacent) && hasOverlap;
+}
+
+// Find all adjacent brick pairs in a workspace
+export function findAdjacentBrickPairs(bricks: Brick3D[]): Array<{ brick1: Brick3D; brick2: Brick3D }> {
+  const adjacentPairs: Array<{ brick1: Brick3D; brick2: Brick3D }> = [];
+  
+  for (let i = 0; i < bricks.length; i++) {
+    for (let j = i + 1; j < bricks.length; j++) {
+      if (areAdjacentIn3D(bricks[i], bricks[j])) {
+        adjacentPairs.push({ brick1: bricks[i], brick2: bricks[j] });
+      }
+    }
+  }
+  
+  return adjacentPairs;
+}
+
+// Create workflow edge data from adjacent brick pair
+export function createEdgeFromAdjacentBricks(brick1: Brick3D, brick2: Brick3D): any {
+  // Get corresponding node IDs (assuming they follow the pattern from BrickWorkflowContext)
+  const sourceNodeId = `node-${brick1.customId}`;
+  const targetNodeId = `node-${brick2.customId}`;
+  
+  // Create unique edge ID
+  const edgeId = `edge-${brick1.customId}-${brick2.customId}`;
+  
+  return {
+    id: edgeId,
+    source: sourceNodeId,
+    target: targetNodeId,
+    animated: true,
+    style: { 
+      stroke: '#00CED1', 
+      strokeWidth: 3, 
+      filter: 'drop-shadow(0 0 8px rgba(0, 206, 209, 0.6))' 
+    },
+    data: {
+      createdFromBricks: true,
+      sourceBrickId: brick1.customId,
+      targetBrickId: brick2.customId
+    }
+  };
+}

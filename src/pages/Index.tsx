@@ -1,14 +1,17 @@
 
 import { motion } from "framer-motion";
-import { Globe, Heart, Users, MapPin, Calendar, Star } from "lucide-react";
+import { Globe, Heart, Users, MapPin, Calendar, Star, Sparkles, Phone, ImageIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import BusinessCard from "@/components/BusinessCard";
 import CommunityEvent from "@/components/CommunityEvent";
 import CulturalConnection from "@/components/CulturalConnection";
+import { useNavigate } from "react-router-dom";
 
 const Index = () => {
+  const navigate = useNavigate();
+  
   const fadeInUp = {
     initial: { opacity: 0, y: 20 },
     animate: { opacity: 1, y: 0 },
@@ -54,6 +57,14 @@ const Index = () => {
             <motion.a href="#community" className="text-gray-700 hover:text-orange-600 transition-colors" whileHover={{ y: -2 }}>
               Community
             </motion.a>
+            <motion.button 
+              onClick={() => navigate('/globe')}
+              className="text-gray-700 hover:text-orange-600 transition-colors flex items-center gap-1" 
+              whileHover={{ y: -2 }}
+            >
+              <Globe className="h-4 w-4" />
+              Global Outreach
+            </motion.button>
           </nav>
           <Button className="bg-gradient-to-r from-orange-500 to-teal-600 hover:from-orange-600 hover:to-teal-700">
             Join CULTURA
@@ -70,11 +81,11 @@ const Index = () => {
             transition={{ duration: 0.8 }}
           >
             <h2 className="text-5xl md:text-6xl font-bold text-gray-800 mb-6">
-              Where <span className="bg-gradient-to-r from-orange-500 to-teal-600 bg-clip-text text-transparent">Cultures</span> Meet Commerce
+              Amplify Your <span className="bg-gradient-to-r from-orange-500 to-teal-600 bg-clip-text text-transparent">Cultural</span> Business
             </h2>
             <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto leading-relaxed">
-              Connecting refugee entrepreneurs with local communities through authentic experiences, 
-              cultural celebrations, and meaningful business relationships.
+              AI-powered tools to help cultural businesses reach more customers through voice engagement 
+              and stunning visual marketing materials.
             </p>
           </motion.div>
           
@@ -85,13 +96,35 @@ const Index = () => {
             animate="animate"
           >
             <motion.div variants={fadeInUp}>
-              <Button size="lg" className="bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white px-8 py-3">
-                Discover Businesses
+              <Button 
+                size="lg" 
+                className="bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white px-8 py-3 flex items-center gap-2"
+                onClick={() => document.getElementById('businesses')?.scrollIntoView({ behavior: 'smooth' })}
+              >
+                <Phone className="h-5 w-5" />
+                Try Voice AI
               </Button>
             </motion.div>
             <motion.div variants={fadeInUp}>
-              <Button size="lg" variant="outline" className="border-teal-300 text-teal-700 hover:bg-teal-50 px-8 py-3">
-                List Your Business
+              <Button 
+                size="lg" 
+                variant="outline" 
+                className="border-purple-300 text-purple-700 hover:bg-purple-50 px-8 py-3 flex items-center gap-2"
+                onClick={() => document.getElementById('businesses')?.scrollIntoView({ behavior: 'smooth' })}
+              >
+                <ImageIcon className="h-5 w-5" />
+                Create Flyers
+              </Button>
+            </motion.div>
+            <motion.div variants={fadeInUp}>
+              <Button 
+                size="lg" 
+                variant="outline" 
+                onClick={() => navigate('/globe')}
+                className="border-orange-300 text-orange-700 hover:bg-orange-50 px-8 py-3 flex items-center gap-2"
+              >
+                <Globe className="h-5 w-5" />
+                Global Outreach
               </Button>
             </motion.div>
           </motion.div>
@@ -105,25 +138,218 @@ const Index = () => {
           >
             <motion.div variants={fadeInUp} className="text-center">
               <div className="bg-white/60 backdrop-blur-sm rounded-full p-4 w-16 h-16 mx-auto mb-4 flex items-center justify-center">
-                <Users className="h-8 w-8 text-orange-600" />
+                <Phone className="h-8 w-8 text-green-600" />
+              </div>
+              <h3 className="text-3xl font-bold text-gray-800">1000+</h3>
+              <p className="text-gray-600">Voice Calls Made</p>
+            </motion.div>
+            <motion.div variants={fadeInUp} className="text-center">
+              <div className="bg-white/60 backdrop-blur-sm rounded-full p-4 w-16 h-16 mx-auto mb-4 flex items-center justify-center">
+                <ImageIcon className="h-8 w-8 text-purple-600" />
               </div>
               <h3 className="text-3xl font-bold text-gray-800">500+</h3>
-              <p className="text-gray-600">Refugee Entrepreneurs</p>
+              <p className="text-gray-600">Flyers Generated</p>
             </motion.div>
             <motion.div variants={fadeInUp} className="text-center">
               <div className="bg-white/60 backdrop-blur-sm rounded-full p-4 w-16 h-16 mx-auto mb-4 flex items-center justify-center">
-                <Heart className="h-8 w-8 text-teal-600" />
+                <Users className="h-8 w-8 text-orange-600" />
               </div>
-              <h3 className="text-3xl font-bold text-gray-800">50+</h3>
-              <p className="text-gray-600">Communities Connected</p>
+              <h3 className="text-3xl font-bold text-gray-800">2500+</h3>
+              <p className="text-gray-600">Customers Reached</p>
             </motion.div>
-            <motion.div variants={fadeInUp} className="text-center">
-              <div className="bg-white/60 backdrop-blur-sm rounded-full p-4 w-16 h-16 mx-auto mb-4 flex items-center justify-center">
-                <Globe className="h-8 w-8 text-orange-600" />
-              </div>
-              <h3 className="text-3xl font-bold text-gray-800">25+</h3>
-              <p className="text-gray-600">Countries Represented</p>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* AI Features Showcase */}
+      <section className="py-16 px-4 bg-gradient-to-r from-violet-100/50 to-fuchsia-100/50">
+        <div className="container mx-auto">
+          <motion.div 
+            className="text-center mb-12"
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+          >
+            <h3 className="text-4xl font-bold text-gray-800 mb-4">Grow Your Business with AI</h3>
+            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+              Instantly connect with customers through AI voice calls and create stunning marketing materials
+            </p>
+          </motion.div>
+          
+          <motion.div 
+            className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto"
+            variants={staggerChildren}
+            initial="initial"
+            whileInView="animate"
+            viewport={{ once: true }}
+          >
+                         <motion.div
+               variants={fadeInUp}
+               className="bg-white/60 backdrop-blur-sm rounded-xl p-6 border border-green-200"
+             >
+               <div className="flex items-center gap-3 mb-4">
+                 <div className="relative">
+                   <motion.div
+                     className="bg-gradient-to-br from-green-500 to-green-600 p-3 rounded-full"
+                     animate={{ 
+                       scale: [1, 1.1, 1],
+                       boxShadow: [
+                         "0 0 0 0 rgba(34, 197, 94, 0.4)",
+                         "0 0 0 10px rgba(34, 197, 94, 0)",
+                         "0 0 0 0 rgba(34, 197, 94, 0)"
+                       ]
+                     }}
+                     transition={{ 
+                       duration: 2,
+                       repeat: Infinity,
+                       ease: "easeInOut"
+                     }}
+                   >
+                     <Phone className="h-6 w-6 text-white" />
+                   </motion.div>
+                   <motion.div
+                     className="absolute -top-1 -right-1 w-3 h-3 bg-green-400 rounded-full"
+                     animate={{ 
+                       scale: [0, 1, 0],
+                       opacity: [0, 1, 0]
+                     }}
+                     transition={{ 
+                       duration: 1.5,
+                       repeat: Infinity,
+                       delay: 0.5
+                     }}
+                   />
+                 </div>
+                 <div>
+                   <h4 className="text-xl font-bold text-gray-800">AI Voice Support</h4>
+                   <Badge className="bg-green-100 text-green-800 text-xs">24/7 Customer Service</Badge>
+                 </div>
+               </div>
+                             <div className="space-y-3">
+                 <Button 
+                   variant="outline" 
+                   className="w-full border-green-300 text-green-700 hover:bg-green-50"
+                 >
+                   <span className="mr-2">🧠</span>
+                   Connect Knowledge Graph
+                 </Button>
+                 <Button 
+                   variant="outline" 
+                   className="w-full border-blue-300 text-blue-700 hover:bg-blue-50"
+                 >
+                   <span className="mr-2">📊</span>
+                   Add Business Data
+                 </Button>
+               </div>
             </motion.div>
+
+                         <motion.div
+               variants={fadeInUp}
+               className="bg-white/60 backdrop-blur-sm rounded-xl p-6 border border-purple-200"
+             >
+               <div className="flex items-center gap-3 mb-4">
+                 <div className="relative">
+                   <motion.div
+                     className="bg-gradient-to-br from-purple-500 to-pink-600 p-3 rounded-full overflow-hidden"
+                     whileHover={{ scale: 1.05 }}
+                   >
+                     <motion.div
+                       animate={{ 
+                         rotate: [0, 360],
+                         scale: [1, 1.2, 1]
+                       }}
+                       transition={{ 
+                         duration: 3,
+                         repeat: Infinity,
+                         ease: "linear"
+                       }}
+                     >
+                       <ImageIcon className="h-6 w-6 text-white" />
+                     </motion.div>
+                   </motion.div>
+                   
+                   {/* Floating sparkle effects */}
+                   <motion.div
+                     className="absolute -top-2 -left-2 w-2 h-2 bg-yellow-400 rounded-full"
+                     animate={{ 
+                       y: [-5, -15, -5],
+                       opacity: [0, 1, 0],
+                       scale: [0, 1, 0]
+                     }}
+                     transition={{ 
+                       duration: 2,
+                       repeat: Infinity,
+                       delay: 0
+                     }}
+                   />
+                   <motion.div
+                     className="absolute -top-1 -right-3 w-1.5 h-1.5 bg-purple-300 rounded-full"
+                     animate={{ 
+                       y: [-3, -12, -3],
+                       opacity: [0, 1, 0],
+                       scale: [0, 1, 0]
+                     }}
+                     transition={{ 
+                       duration: 2,
+                       repeat: Infinity,
+                       delay: 0.7
+                     }}
+                   />
+                   <motion.div
+                     className="absolute -bottom-2 -right-1 w-2 h-2 bg-pink-400 rounded-full"
+                     animate={{ 
+                       y: [5, -10, 5],
+                       opacity: [0, 1, 0],
+                       scale: [0, 1, 0]
+                     }}
+                     transition={{ 
+                       duration: 2,
+                       repeat: Infinity,
+                       delay: 1.4
+                     }}
+                   />
+                 </div>
+                 <div>
+                   <h4 className="text-xl font-bold text-gray-800">AI Marketing Flyers</h4>
+                   <Badge className="bg-purple-100 text-purple-800 text-xs">Instant Design</Badge>
+                 </div>
+               </div>
+                             <div className="space-y-3">
+                 <Button 
+                   variant="outline" 
+                   className="w-full border-purple-300 text-purple-700 hover:bg-purple-50"
+                 >
+                   <span className="mr-2">🎨</span>
+                   Upload Brand Assets
+                 </Button>
+                 <Button 
+                   variant="outline" 
+                   className="w-full border-pink-300 text-pink-700 hover:bg-pink-50"
+                 >
+                   <span className="mr-2">🌍</span>
+                   Cultural Data Source
+                 </Button>
+               </div>
+            </motion.div>
+          </motion.div>
+
+          <motion.div 
+            className="text-center mt-8"
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+          >
+                         <p className="text-gray-600 text-sm">
+               Test these powerful business tools below! Try 
+               <span className="inline-flex items-center mx-1 px-2 py-1 bg-green-100 rounded text-green-700 text-xs">
+                 <Phone className="h-3 w-3 mr-1" />Talk Now
+               </span>
+               for AI voice support or 
+               <span className="inline-flex items-center mx-1 px-2 py-1 bg-purple-100 rounded text-purple-700 text-xs">
+                 <ImageIcon className="h-3 w-3 mr-1" />Flyer
+               </span>
+               to create marketing materials
+             </p>
           </motion.div>
         </div>
       </section>
@@ -137,9 +363,9 @@ const Index = () => {
             whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
           >
-            <h3 className="text-4xl font-bold text-gray-800 mb-4">Featured Businesses</h3>
+            <h3 className="text-4xl font-bold text-gray-800 mb-4">Try Our Business Tools</h3>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Discover authentic cuisines, handcrafted goods, and unique services from talented refugee entrepreneurs
+              Experience how AI can transform your business outreach - test voice support and flyer generation on these sample businesses
             </p>
           </motion.div>
           
@@ -250,24 +476,165 @@ const Index = () => {
             whileInView="animate"
             viewport={{ once: true }}
           >
-            <CulturalConnection 
-              title="Dietary Matching"
-              description="Connecting halal, kosher, and vegan businesses with communities that share these values"
-              icon={Heart}
-              color="orange"
-            />
-            <CulturalConnection 
-              title="Event Intelligence"
-              description="AI scouts local cultural events and celebration calendars to maximize business opportunities"
-              icon={Calendar}
-              color="teal"
-            />
-            <CulturalConnection 
-              title="Community Trust"
-              description="Building networks through cultural leaders and micro-influencers who bridge communities"
-              icon={Users}
-              color="orange"
-            />
+            <motion.div variants={fadeInUp} className="bg-white/60 backdrop-blur-sm rounded-xl p-6 border border-orange-200">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="relative">
+                  <motion.div
+                    className="bg-gradient-to-br from-orange-500 to-red-600 p-3 rounded-full"
+                    animate={{ 
+                      scale: [1, 1.05, 1],
+                      rotate: [0, 5, -5, 0]
+                    }}
+                    transition={{ 
+                      duration: 3,
+                      repeat: Infinity,
+                      ease: "easeInOut"
+                    }}
+                  >
+                    <Heart className="h-6 w-6 text-white" />
+                  </motion.div>
+                </div>
+                <div>
+                  <h4 className="text-xl font-bold text-gray-800">Dietary Matching</h4>
+                  <Badge className="bg-orange-100 text-orange-800 text-xs">Smart Connections</Badge>
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Button variant="outline" className="w-full border-green-300 text-green-700 hover:bg-green-50 text-sm">
+                  <span className="mr-2">🥗</span>
+                  Find Halal Partners
+                </Button>
+                <Button variant="outline" className="w-full border-blue-300 text-blue-700 hover:bg-blue-50 text-sm">
+                  <span className="mr-2">✡️</span>
+                  Connect Kosher Network
+                </Button>
+                <Button variant="outline" className="w-full border-emerald-300 text-emerald-700 hover:bg-emerald-50 text-sm">
+                  <span className="mr-2">🌱</span>
+                  Match Vegan Community
+                </Button>
+              </div>
+            </motion.div>
+
+            <motion.div variants={fadeInUp} className="bg-white/60 backdrop-blur-sm rounded-xl p-6 border border-teal-200">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="relative">
+                  <motion.div
+                    className="bg-gradient-to-br from-teal-500 to-blue-600 p-3 rounded-full"
+                    animate={{ 
+                      rotateY: [0, 360],
+                      scale: [1, 1.1, 1]
+                    }}
+                    transition={{ 
+                      duration: 4,
+                      repeat: Infinity,
+                      ease: "linear"
+                    }}
+                  >
+                    <Calendar className="h-6 w-6 text-white" />
+                  </motion.div>
+                  <motion.div
+                    className="absolute -top-1 -right-1 w-3 h-3 bg-yellow-400 rounded-full"
+                    animate={{ 
+                      scale: [0, 1.2, 0],
+                      opacity: [0, 1, 0]
+                    }}
+                    transition={{ 
+                      duration: 2,
+                      repeat: Infinity,
+                      delay: 1
+                    }}
+                  />
+                </div>
+                <div>
+                  <h4 className="text-xl font-bold text-gray-800">Event Intelligence</h4>
+                  <Badge className="bg-teal-100 text-teal-800 text-xs">AI Powered</Badge>
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Button variant="outline" className="w-full border-purple-300 text-purple-700 hover:bg-purple-50 text-sm">
+                  <span className="mr-2">🎉</span>
+                  Scan Local Events
+                </Button>
+                <Button variant="outline" className="w-full border-indigo-300 text-indigo-700 hover:bg-indigo-50 text-sm">
+                  <span className="mr-2">📅</span>
+                  Cultural Calendar
+                </Button>
+                <Button variant="outline" className="w-full border-pink-300 text-pink-700 hover:bg-pink-50 text-sm">
+                  <span className="mr-2">🎯</span>
+                  Opportunity Alerts
+                </Button>
+              </div>
+            </motion.div>
+
+            <motion.div variants={fadeInUp} className="bg-white/60 backdrop-blur-sm rounded-xl p-6 border border-amber-200">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="relative">
+                  <motion.div
+                    className="bg-gradient-to-br from-amber-500 to-orange-600 p-3 rounded-full"
+                    animate={{ 
+                      scale: [1, 1.15, 1],
+                      boxShadow: [
+                        "0 0 0 0 rgba(245, 158, 11, 0.4)",
+                        "0 0 0 8px rgba(245, 158, 11, 0.1)",
+                        "0 0 0 0 rgba(245, 158, 11, 0)"
+                      ]
+                    }}
+                    transition={{ 
+                      duration: 2.5,
+                      repeat: Infinity,
+                      ease: "easeInOut"
+                    }}
+                  >
+                    <Users className="h-6 w-6 text-white" />
+                  </motion.div>
+                  {/* Network nodes animation */}
+                  <motion.div
+                    className="absolute -top-2 -left-2 w-2 h-2 bg-blue-400 rounded-full"
+                    animate={{ 
+                      scale: [0, 1, 0],
+                      x: [0, -5, 0],
+                      y: [0, -5, 0]
+                    }}
+                    transition={{ 
+                      duration: 3,
+                      repeat: Infinity,
+                      delay: 0
+                    }}
+                  />
+                  <motion.div
+                    className="absolute -bottom-2 -right-2 w-2 h-2 bg-green-400 rounded-full"
+                    animate={{ 
+                      scale: [0, 1, 0],
+                      x: [0, 5, 0],
+                      y: [0, 5, 0]
+                    }}
+                    transition={{ 
+                      duration: 3,
+                      repeat: Infinity,
+                      delay: 1
+                    }}
+                  />
+                </div>
+                <div>
+                  <h4 className="text-xl font-bold text-gray-800">Community Trust</h4>
+                  <Badge className="bg-amber-100 text-amber-800 text-xs">Network Building</Badge>
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Button variant="outline" className="w-full border-violet-300 text-violet-700 hover:bg-violet-50 text-sm">
+                  <span className="mr-2">👥</span>
+                  Find Leaders
+                </Button>
+                <Button variant="outline" className="w-full border-rose-300 text-rose-700 hover:bg-rose-50 text-sm">
+                  <span className="mr-2">⭐</span>
+                  Connect Influencers
+                </Button>
+                <Button variant="outline" className="w-full border-cyan-300 text-cyan-700 hover:bg-cyan-50 text-sm">
+                  <span className="mr-2">🤝</span>
+                  Build Networks
+                </Button>
+              </div>
+            </motion.div>
           </motion.div>
         </div>
       </section>

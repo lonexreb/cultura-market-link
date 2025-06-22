@@ -1,0 +1,94 @@
+{
+  "workflow": {
+    "id": "test-multi-ai",
+    "name": "Multi-AI Pipeline",
+    "description": "Document processing through multiple AI models in sequence",
+    "nodes": [
+      {
+        "id": "doc-1",
+        "type": "document",
+        "position": {"x": 100, "y": 100},
+        "data": {
+          "label": "Document Source",
+          "description": "Initial document processing"
+        },
+        "config": {
+          "text": "The future of artificial intelligence looks promising with advances in large language models, computer vision, and robotics. Companies like OpenAI, Google, and Anthropic are pushing the boundaries of what's possible. However, there are concerns about AI safety, job displacement, and the concentration of AI power in a few large corporations. Regulatory frameworks are being developed to ensure responsible AI development.",
+          "chunk_size": 300,
+          "extract_entities": true
+        }
+      },
+      {
+        "id": "ai-summarizer",
+        "type": "claude4",
+        "position": {"x": 400, "y": 50},
+        "data": {
+          "label": "Claude Summarizer",
+          "description": "First AI: Create summary"
+        },
+        "config": {
+          "model": "claude-3-sonnet-20240229",
+          "temperature": 0.5,
+          "max_tokens": 150,
+          "system_prompt": "You are a concise summarizer.",
+          "user_prompt": "Create a brief summary of this document:"
+        }
+      },
+      {
+        "id": "ai-analyzer",
+        "type": "groqllama",
+        "position": {"x": 400, "y": 150},
+        "data": {
+          "label": "Groq Analyzer",
+          "description": "Second AI: Analyze themes"
+        },
+        "config": {
+          "model": "llama3-70b-8192",
+          "temperature": 0.8,
+          "max_tokens": 200,
+          "system_prompt": "You are a thematic analyst.",
+          "user_prompt": "Identify the main themes and concerns in this document:"
+        }
+      },
+      {
+        "id": "ai-final",
+        "type": "gemini",
+        "position": {"x": 700, "y": 100},
+        "data": {
+          "label": "Gemini Synthesizer",
+          "description": "Final AI: Synthesize insights"
+        },
+        "config": {
+          "model": "gemini-1.5-pro",
+          "temperature": 0.6,
+          "max_tokens": 300,
+          "system_prompt": "You are a synthesis expert who combines multiple perspectives.",
+          "user_prompt": "Based on the summary and analysis provided, create a comprehensive synthesis:"
+        }
+      }
+    ],
+    "edges": [
+      {
+        "id": "edge-1",
+        "source": "doc-1",
+        "target": "ai-summarizer"
+      },
+      {
+        "id": "edge-2",
+        "source": "doc-1",
+        "target": "ai-analyzer"
+      },
+      {
+        "id": "edge-3",
+        "source": "ai-summarizer",
+        "target": "ai-final"
+      },
+      {
+        "id": "edge-4",
+        "source": "ai-analyzer",
+        "target": "ai-final"
+      }
+    ]
+  },
+  "debug": true
+} 

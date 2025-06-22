@@ -1,0 +1,43 @@
+{
+  "workflow": {
+    "id": "test-missing-config",
+    "name": "Invalid Workflow with Missing Config",
+    "description": "This workflow has nodes with missing required configuration",
+    "nodes": [
+      {
+        "id": "doc-missing-text",
+        "type": "document",
+        "position": {"x": 100, "y": 100},
+        "data": {
+          "label": "Document Missing Text",
+          "description": "Document node without required text field"
+        },
+        "config": {
+          "chunk_size": 100
+        }
+      },
+      {
+        "id": "ai-missing-prompt",
+        "type": "claude4",
+        "position": {"x": 300, "y": 100},
+        "data": {
+          "label": "AI Missing Prompt",
+          "description": "AI node without required prompt"
+        },
+        "config": {
+          "model": "claude-3-sonnet-20240229",
+          "temperature": 0.7,
+          "max_tokens": 100
+        }
+      }
+    ],
+    "edges": [
+      {
+        "id": "edge-1",
+        "source": "doc-missing-text",
+        "target": "ai-missing-prompt"
+      }
+    ]
+  },
+  "debug": true
+} 

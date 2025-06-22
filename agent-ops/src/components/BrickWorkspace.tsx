@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { BrickPanel } from './BrickPanel';
 import { BrickType, ConnectorType, BRICK_COLORS, BRICK_TYPES, Brick3D } from '../types/brick-types';
 import { useBrickWorkflow } from '../contexts/BrickWorkflowContext';
-import * as THREE from 'three';
+import * as THREE from 'node_modules/@types/three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import * as BufferGeometryUtils from 'three/addons/utils/BufferGeometryUtils.js';
 import loadingGif from '../assets/loading.gif';

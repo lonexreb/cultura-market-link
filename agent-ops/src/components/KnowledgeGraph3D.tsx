@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import ForceGraph3D from '3d-force-graph';
-import * as THREE from 'three';
+import * as THREE from 'node_modules/@types/three';
 import SpriteText from 'three-spritetext';
 import { Activity, AlertCircle, RefreshCw, Eye, EyeOff } from 'lucide-react';
 import { Button } from './ui/button';

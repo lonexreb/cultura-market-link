@@ -1,0 +1,151 @@
+// ----------------
+// HELP
+//
+// Component File
+// ----------------
+
+@import '~styles/vars';
+
+
+@modal-width: 400px;
+@modal-height: 500px;
+@close-button-dimensions: 30px;
+
+
+:local(.help) {
+  position: absolute;
+  bottom: @base-margin;
+  right: @base-margin;
+  z-index: 99;
+}
+
+
+:local(.text) {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1em;
+  color: @primary-blue;
+  transition: all @base-transition-time ease-in-out;
+
+  > i {
+    margin-right: @base-margin-small;
+  }
+
+  &:hover {
+    cursor: pointer;
+    color: lighten(@primary-blue, 20%);
+  }
+}
+
+
+:local(.inversed) {
+  composes: text;
+  color: @white;
+
+  &:hover {
+    color: @tertiary-blue;
+  }
+}
+
+
+:local(.modalWrapper) {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: @modal-width;
+  height: @modal-height;
+  margin: auto;
+  display: flex;
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1);
+  border-radius: 10px;
+  box-shadow: 0px 10px 15px 0px rgba(0,0,0,0.25);
+  transition: opacity @base-transition-time * 1.5 cubic-bezier(0.4, 0, 0.2, 1), transform @base-transition-time cubic-bezier(0.4, 0, 0.2, 1);
+  background: @secondary-blue;
+}
+
+
+:local(.closedModal) {
+  composes: modalWrapper;
+  pointer-events: none;
+  opacity: 0;
+  transform: translate(-50%, -50%) scale(0.8);
+  transition: opacity @base-transition-time cubic-bezier(0.4, 0, 0.2, 1), transform @base-transition-time * 1.5 cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+
+:local(.modal) {
+  flex: 1;
+  position: relative;
+  padding: @base-padding * 2;
+  color: @text-color-primary;
+  font-size: 0.8em;
+  line-height: 1.4em;
+}
+
+
+:local(.close) {
+  position: absolute;
+  top: -(@close-button-dimensions / 3);
+  right: -(@close-button-dimensions / 3);
+  width: @close-button-dimensions;
+  height: @close-button-dimensions;
+  border-radius: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: @white;
+  color: @secondary-blue;
+  transition: all @base-transition-time ease-in-out;
+  box-shadow: 0px 3px 15px 1px rgba(0,0,0,0.15);
+
+  &:hover {
+    cursor: pointer;
+    background: darken(@white, 10%);
+  }
+}
+
+
+:local(.section) {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  padding-top: @base-padding;
+}
+
+
+:local(.icon) {
+  margin-right: @base-margin * 2;
+  color: @text-color-secondary;
+  font-size: 2.7em;
+  width: 30px;
+}
+
+
+:local(.github) {
+  position: absolute;
+  bottom: @base-padding;
+  right: @base-padding;
+  text-align: right;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  color: @text-color-secondary;
+  transition: all @base-transition-time ease-in-out;
+
+  > a {
+    text-decoration: none;
+    color: inherit;
+  }
+
+  > i {
+    margin-right: @base-margin-small;
+    font-size: 1.2em;
+  }
+
+  &:hover {
+    cursor: pointer;
+    color: @text-color-primary;
+  }
+}

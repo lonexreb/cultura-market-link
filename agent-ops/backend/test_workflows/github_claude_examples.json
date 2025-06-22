@@ -1,0 +1,200 @@
+{
+  "github_claude_workflows": {
+    "repository_analysis": {
+      "name": "Repository Health Analysis",
+      "description": "Analyze GitHub repository activity and generate insights",
+      "nodes": [
+        {
+          "type": "github_mcp",
+          "id": "github-1",
+          "position": { "x": 100, "y": 100 },
+          "data": {
+            "operation": "list_repositories",
+            "config": {
+              "owner": "microsoft",
+              "repo": "vscode",
+              "credentialMode": "direct_input",
+              "apiKeyName": "github"
+            },
+            "params": {
+              "visibility": "public",
+              "sort": "updated",
+              "per_page": 10
+            }
+          }
+        },
+        {
+          "type": "claude4",
+          "id": "claude-1", 
+          "position": { "x": 400, "y": 100 },
+          "data": {
+            "prompt": "Analyze the following GitHub repositories and provide:\n1. Activity patterns\n2. Language distribution\n3. Maintenance recommendations\n4. Top 3 most promising projects\n\nRepository data: {{github-1.result}}",
+            "model": "claude-4-20241201",
+            "max_tokens": 2000
+          }
+        }
+      ],
+      "edges": [
+        {
+          "id": "e1-2",
+          "source": "github-1",
+          "target": "claude-1",
+          "sourceHandle": "output",
+          "targetHandle": "input"
+        }
+      ]
+    },
+    
+    "issue_triage": {
+      "name": "Automated Issue Triage",
+      "description": "Fetch GitHub issues and automatically categorize and prioritize them",
+      "nodes": [
+        {
+          "type": "github_mcp",
+          "id": "github-2",
+          "position": { "x": 100, "y": 200 },
+          "data": {
+            "operation": "get_issues",
+            "config": {
+              "owner": "facebook",
+              "repo": "react",
+              "credentialMode": "stored_key",
+              "apiKeyName": "github"
+            },
+            "params": {
+              "state": "open",
+              "labels": "bug,enhancement",
+              "sort": "created",
+              "direction": "desc"
+            }
+          }
+        },
+        {
+          "type": "claude4",
+          "id": "claude-2",
+          "position": { "x": 400, "y": 200 },
+          "data": {
+            "prompt": "Analyze these GitHub issues and create a triage report:\n\n1. **Critical Issues** (security, breaking changes)\n2. **High Priority** (affects many users)\n3. **Medium Priority** (feature requests, improvements)\n4. **Low Priority** (documentation, minor bugs)\n\nFor each category, provide:\n- Issue count\n- Key themes\n- Recommended actions\n- Timeline estimates\n\nIssues data: {{github-2.result}}",
+            "model": "claude-4-20241201",
+            "max_tokens": 3000
+          }
+        }
+      ],
+      "edges": [
+        {
+          "id": "e2-3",
+          "source": "github-2", 
+          "target": "claude-2",
+          "sourceHandle": "output",
+          "targetHandle": "input"
+        }
+      ]
+    },
+
+    "code_review_assistant": {
+      "name": "AI Code Review Assistant",
+      "description": "Fetch pull request and generate comprehensive code review",
+      "nodes": [
+        {
+          "type": "github_mcp",
+          "id": "github-3",
+          "position": { "x": 100, "y": 300 },
+          "data": {
+            "operation": "get_repository_content",
+            "config": {
+              "owner": "vercel",
+              "repo": "next.js",
+              "credentialMode": "direct_input",
+              "apiKeyName": "github"
+            },
+            "params": {
+              "path": "packages/next/src",
+              "ref": "canary"
+            }
+          }
+        },
+        {
+          "type": "claude4",
+          "id": "claude-3",
+          "position": { "x": 400, "y": 300 },
+          "data": {
+            "prompt": "Perform a comprehensive code review analysis:\n\n**Code Quality Assessment:**\n1. Architecture patterns\n2. Code organization\n3. Best practices adherence\n4. Performance considerations\n\n**Security Review:**\n1. Potential vulnerabilities\n2. Input validation\n3. Authentication/authorization\n4. Data handling\n\n**Recommendations:**\n1. Immediate fixes needed\n2. Suggested improvements\n3. Refactoring opportunities\n4. Documentation needs\n\nCode structure: {{github-3.result}}",
+            "model": "claude-4-20241201",
+            "max_tokens": 4000
+          }
+        }
+      ],
+      "edges": [
+        {
+          "id": "e3-4",
+          "source": "github-3",
+          "target": "claude-3", 
+          "sourceHandle": "output",
+          "targetHandle": "input"
+        }
+      ]
+    },
+
+    "release_notes_generator": {
+      "name": "Automated Release Notes",
+      "description": "Generate professional release notes from GitHub repository changes",
+      "nodes": [
+        {
+          "type": "github_mcp",
+          "id": "github-4",
+          "position": { "x": 100, "y": 400 },
+          "data": {
+            "operation": "list_repositories",
+            "config": {
+              "owner": "your-org",
+              "repo": "your-project",
+              "credentialMode": "stored_key",
+              "apiKeyName": "github"
+            },
+            "params": {
+              "visibility": "private",
+              "sort": "updated"
+            }
+          }
+        },
+        {
+          "type": "claude4",
+          "id": "claude-4",
+          "position": { "x": 400, "y": 400 },
+          "data": {
+            "prompt": "Generate professional release notes based on repository activity:\n\n## Release Notes Template:\n\n### 🚀 New Features\n- [List major new features]\n\n### 🐛 Bug Fixes  \n- [List critical fixes]\n\n### 🔧 Improvements\n- [List enhancements]\n\n### 📚 Documentation\n- [List doc updates]\n\n### 🔄 Breaking Changes\n- [List any breaking changes]\n\n### 👥 Contributors\n- [Acknowledge contributors]\n\nRepository data: {{github-4.result}}\n\nMake it professional, user-friendly, and highlight the most important changes.",
+            "model": "claude-4-20241201",
+            "max_tokens": 2500
+          }
+        }
+      ],
+      "edges": [
+        {
+          "id": "e4-5",
+          "source": "github-4",
+          "target": "claude-4",
+          "sourceHandle": "output", 
+          "targetHandle": "input"
+        }
+      ]
+    }
+  },
+  
+  "quick_start_guide": {
+    "title": "GitHub MCP + Claude: Quick Start Guide",
+    "steps": [
+      "1. 🎯 Import any workflow template above",
+      "2. 🔐 Configure GitHub credentials (direct or stored)",
+      "3. ⚙️ Customize repository owner/name for your use case",
+      "4. 🤖 Adjust Claude prompts to your specific needs", 
+      "5. ▶️ Execute and get AI-powered GitHub insights!"
+    ],
+    "pro_tips": [
+      "💡 Use direct token input for quick testing",
+      "🔒 Use stored keys for production workflows",
+      "🔗 Chain multiple GitHub operations with Claude analysis",
+      "📊 Export results to other nodes for further processing",
+      "⚡ Set up automated triggers for continuous monitoring"
+    ]
+  }
+} 

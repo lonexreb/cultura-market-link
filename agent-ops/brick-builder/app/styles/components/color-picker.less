@@ -1,0 +1,39 @@
+// ----------------
+// COLOUR PICKER
+//
+// Component File
+// ----------------
+
+@import '~styles/vars';
+
+
+:local(.colorPicker) {
+  position: relative;
+  display: flex;
+  justify-content: center;
+
+  &:hover {
+    cursor: pointer;
+  }
+}
+
+
+:local(.brick) {
+  width: 35px;
+}
+
+
+:local(.picker) {
+  position: absolute;
+  top: ~'calc(100% + 35px)';
+  left: ~'calc(50% - 15px)';
+  display: none;
+  // transform: translateX();
+}
+
+
+:local(.visible) {
+  composes: picker;
+  display: block;
+  // transform: scaleX(0);
+}

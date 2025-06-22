@@ -1,0 +1,72 @@
+{
+  "workflow_name": "Simple Document Analysis",
+  "description": "Analyze any document through multiple AI perspectives",
+  "steps": [
+    {
+      "step": 1,
+      "action": "Add Document Node",
+      "details": "Drag 'Document' from node panel to canvas",
+      "config": {
+        "text": "Artificial intelligence is transforming industries worldwide. Companies are investing billions in AI research, from healthcare to finance. However, concerns about job displacement and ethical AI development continue to grow."
+      }
+    },
+    {
+      "step": 2,
+      "action": "Add Claude4 Node",
+      "details": "Drag 'Claude4' node for summarization",
+      "config": {
+        "label": "Document Summarizer",
+        "system_prompt": "You are a professional summarizer. Create clear, concise summaries.",
+        "user_prompt": "Summarize this document in 2-3 sentences:"
+      }
+    },
+    {
+      "step": 3,
+      "action": "Add Groq Node",
+      "details": "Drag 'GroqLlama' node for insights",
+      "config": {
+        "label": "Insight Generator",
+        "system_prompt": "You are an analyst who identifies key insights and implications.",
+        "user_prompt": "Based on this text, what are the key insights and future implications?"
+      }
+    },
+    {
+      "step": 4,
+      "action": "Connect Nodes",
+      "details": "Draw connections between nodes",
+      "connections": [
+        {
+          "from": "Document Node",
+          "to": "Claude4 Summarizer",
+          "meaning": "Send document text to summarizer"
+        },
+        {
+          "from": "Document Node", 
+          "to": "Groq Insight Generator",
+          "meaning": "Send document text to analyzer"
+        }
+      ]
+    },
+    {
+      "step": 5,
+      "action": "Execute Workflow",
+      "details": "Click the play button to run the entire workflow",
+      "result": "You'll get both a summary AND insights from the same document"
+    }
+  ],
+  "logical_flow": {
+    "input": "Raw document text",
+    "processing": [
+      "Document node preprocesses text",
+      "Claude4 creates summary in parallel",
+      "Groq generates insights in parallel"
+    ],
+    "output": "Two different AI perspectives on the same content"
+  },
+  "why_this_works": [
+    "🔄 Parallel Processing: Both AI nodes work simultaneously",
+    "📊 Multiple Perspectives: Different AI models provide different insights",
+    "⚡ Efficient: No waiting for sequential processing",
+    "🎯 Focused: Each node has a specific, optimized purpose"
+  ]
+} 
